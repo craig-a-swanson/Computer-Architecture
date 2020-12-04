@@ -118,3 +118,16 @@ class CPU:
                 operand_a = self.ram[self.pc + 1]
                 self.prn(operand_a)
                 self.pc +=2
+
+
+# NOTE
+10100000 >> 6  # results in the left two digits, 10
+160 >> 6 # equals 2
+number_of_operands = command >> 6
+pc += (1 + number_of_operands)
+#                                   v
+# to get a digit in the middle: 0b11100000
+#first shift right by five
+# then do masking with &
+# 0b11100000 >> 5
+# 0b111 & 001 = 001   so we know our digit is a one.

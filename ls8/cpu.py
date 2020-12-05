@@ -45,15 +45,22 @@ class CPU:
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
-
-        if op == "ADD":
+        # ADD
+        if op == 0b0:
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
+
+        # MUL
+        elif op == 0b10:
+            self.mul(reg_a, reg_b)
         else:
             raise Exception("Unsupported ALU operation")
 
     def hlt(self):
         exit()
+
+    def mul(self, register_a, register_b):
+        self.reg[register_a] *= self.reg[register_b]
 
     def ldi(self, register, immediate):
         self.reg[register] = immediate
@@ -97,45 +104,35 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        ir = 0 # a copy of the currently executing instruction
-        operand_a = 0
-        operand_b = 0
-        # read the address in pc and store the result in ir.
-        # using ram_read(), read PC+1 and PC+2 from RAM into
-        # the variable operand_a and operand_b
-        # then depending on the value of opcode, perform action.
-
         running = True
 
         while running:
             # self.trace()
             instruction = self.ram[self.pc]
+            number_of_operands = instruction >> 6
+            opertion_code = instruction & 0b00001111
 
-            if instruction == 0b00000001:
+            if number_of_operands > 0:
+                operand_a = self.ram[self.pc + 1]
+            if number_of_operands > 1:
+                operand_b = self.ram[self.pc + 2]
+
+            # ALU Mask
+            alu = (instruction >> 5) & 0b001
+
+            if alu:
+                self.alu(opertion_code, operand_a, operand_b)
+
+            #HLT
+            elif opertion_code == 0b1:
                 self.hlt()
 
-            elif instruction == 0b10000010:
-                ir = instruction
-                operand_a = self.ram[self.pc + 1]
-                operand_b = self.ram[self.pc + 2]
+            #LDI
+            elif opertion_code == 0b10:
                 self.ldi(operand_a, operand_b)
-                self.pc += 3
             
-            elif instruction == 0b01000111:
-                ir = instruction
-                operand_a = self.ram[self.pc + 1]
+            #PRN
+            elif opertion_code == 0b111:
                 self.prn(operand_a)
-                self.pc +=2
-
-
-# NOTE
-# 10100000 >> 6  # results in the left two digits, 10
-# 160 >> 6 # equals 2
-# number_of_operands = command >> 6
-# pc += (1 + number_of_operands)
-#                                   v
-# to get a digit in the middle: 0b11100000
-#first shift right by five
-# then do masking with &
-# 0b11100000 >> 5
-# 0b111 & 001 = 001   so we know our digit is a one.
+            
+            self.pc += (1 + number_of_operands)

@@ -1,5 +1,6 @@
-opcodes = {
+direct_codes = {
     0b0 : 'call',
+    0b10 : 'int',
     0b11 : 'iret',
     0b101 : 'jeq',
     0b1010 : 'jge',
@@ -8,8 +9,19 @@ opcodes = {
     0b1000 : 'jlt',
     0b100 : 'jmp',
     0b110 : 'jne',
+    0b1 : 'ret'
+}
+
+opcodes = {
     0b11 : 'ld',
-    0b10 : 'ldi'
+    0b10 : 'ldi',
+    0b0 : 'nop',
+    0b110 : 'pop',
+    0b1000 : 'pra',
+    0b111 : 'prn',
+    0b101 : 'push',
+    0b1 : 'ret',
+    0b100 : 'st'
 }
 
 alu_opcodes = {
@@ -28,6 +40,3 @@ alu_opcodes = {
     0b1 : 'sub',
     0b1011 : 'xor'
 }
-
-def mul(self, register_a, register_b):
-    return register_a * register_b

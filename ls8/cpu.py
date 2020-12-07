@@ -1,6 +1,7 @@
 """CPU functionality."""
 
 import sys
+import operations
 
 class CPU:
     """Main CPU class."""
@@ -10,6 +11,7 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
+        self.num_operands = 0
 
         self.reg[7] = 0xf4
 
@@ -45,16 +47,24 @@ class CPU:
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
-        # ADD
-        if op == 0b0:
-            self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
 
-        # MUL
-        elif op == 0b10:
-            self.mul(reg_a, reg_b)
+        alu_operation = operations.alu_opcodes[op]
+
+        if self.num_operands > 1:
+            getattr(self, alu_operation)(reg_a, reg_b)
         else:
-            raise Exception("Unsupported ALU operation")
+            getattr(self, alu_operation)(reg_a)
+
+        # # ADD
+        # if op == 0b0:
+        #     self.reg[reg_a] += self.reg[reg_b]
+        # #elif op == "SUB": etc
+
+        # # MUL
+        # elif op == 0b10:
+        #     self.mul(reg_a, reg_b)
+        # else:
+        #     raise Exception("Unsupported ALU operation")
 
     def hlt(self):
         exit()
@@ -109,12 +119,12 @@ class CPU:
         while running:
             # self.trace()
             instruction = self.ram[self.pc]
-            number_of_operands = instruction >> 6
+            self.num_operands = instruction >> 6
             opertion_code = instruction & 0b00001111
 
-            if number_of_operands > 0:
+            if self.num_operands > 0:
                 operand_a = self.ram[self.pc + 1]
-            if number_of_operands > 1:
+            if self.num_operands > 1:
                 operand_b = self.ram[self.pc + 2]
 
             # ALU Mask
@@ -135,4 +145,4 @@ class CPU:
             elif opertion_code == 0b111:
                 self.prn(operand_a)
             
-            self.pc += (1 + number_of_operands)
+            self.pc += (1 + self.num_operands)

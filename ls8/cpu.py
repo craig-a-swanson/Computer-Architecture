@@ -45,7 +45,7 @@ class CPU:
             print("(Did you double check the file name?)")
             exit()
 
-    def alu(self, op, reg_a, reg_b):
+    def alu(self, op, reg_a, reg_b=None):
         """ALU operations."""
 
         alu_operation = operations.alu_opcodes[op]
@@ -55,16 +55,11 @@ class CPU:
         else:
             getattr(self, alu_operation)(reg_a)
 
-        # # ADD
-        # if op == 0b0:
-        #     self.reg[reg_a] += self.reg[reg_b]
-        # #elif op == "SUB": etc
-
-        # # MUL
-        # elif op == 0b10:
-        #     self.mul(reg_a, reg_b)
         # else:
         #     raise Exception("Unsupported ALU operation")
+
+    def add(self, register_a, register_b):
+        self.reg[register_a] += self.reg[register_b]
 
     def hlt(self):
         exit()
@@ -78,8 +73,6 @@ class CPU:
     
     def prn(self, register):
         binary_string = str(self.reg[register])
-        # int_value = (int(binary_string, 2))
-        # print(int_value)
         print(binary_string)
         return
     
@@ -122,6 +115,10 @@ class CPU:
             self.num_operands = instruction >> 6
             opertion_code = instruction & 0b00001111
 
+            #HLT
+            if opertion_code == 0b1:
+                self.hlt()
+
             if self.num_operands > 0:
                 operand_a = self.ram[self.pc + 1]
             if self.num_operands > 1:
@@ -133,16 +130,12 @@ class CPU:
             if alu:
                 self.alu(opertion_code, operand_a, operand_b)
 
-            #HLT
-            elif opertion_code == 0b1:
-                self.hlt()
+            else:
+                operation = operations.opcodes[opertion_code]
 
-            #LDI
-            elif opertion_code == 0b10:
-                self.ldi(operand_a, operand_b)
-            
-            #PRN
-            elif opertion_code == 0b111:
-                self.prn(operand_a)
+                if self.num_operands > 1:
+                    getattr(self, operation)(operand_a, operand_b)
+                else:
+                    getattr(self, operation)(operand_a)
             
             self.pc += (1 + self.num_operands)

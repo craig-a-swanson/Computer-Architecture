@@ -71,10 +71,21 @@ class CPU:
         self.reg[register] = immediate
         return
     
+    def pop(self,register):
+        value = self.ram[self.reg[7]]
+        self.reg[register] = value
+        self.reg[7] =+ 1
+    
     def prn(self, register):
         binary_string = str(self.reg[register])
         print(binary_string)
         return
+    
+    def push(self, register):
+        self.reg[7] -= 1
+        value = self.reg[register]
+
+        self.ram[self.reg[7]] = value
     
     def ram_read(self, address_to_read):
         # return value stored at address_to_read

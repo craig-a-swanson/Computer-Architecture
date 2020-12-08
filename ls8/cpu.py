@@ -69,22 +69,21 @@ class CPU:
 
     def ldi(self, register, immediate):
         self.reg[register] = immediate
-        return
     
     def pop(self,register):
         value = self.ram[self.reg[7]]
         self.reg[register] = value
-        self.reg[7] =+ 1
+        address = self.reg[7]
+        new_address = address + 0x1
+        self.reg[7] = new_address
     
     def prn(self, register):
         binary_string = str(self.reg[register])
         print(binary_string)
-        return
     
     def push(self, register):
-        self.reg[7] -= 1
+        self.reg[7] -= 0x1
         value = self.reg[register]
-
         self.ram[self.reg[7]] = value
     
     def ram_read(self, address_to_read):

@@ -58,21 +58,29 @@ class CPU:
         # else:
         #     raise Exception("Unsupported ALU operation")
     
-    def pcs(self, op, register_a, register_b=None):
+    def pcs(self, op, register_a=None, register_b=None):
 
         pc_setter_operation = operations.direct_codes[op]
 
         if self.num_operands > 1:
             getattr(self, pc_setter_operation)(register_a, register_b)
-        else:
+        elif self.num_operands == 1:
             getattr(self, pc_setter_operation)(register_a)
-
+        else:
+            getattr(self, pc_setter_operation)()
 
     def add(self, register_a, register_b):
         self.reg[register_a] += self.reg[register_b]
 
     def call(self, register_a):
-        stored_address = self.reg[register_a]
+        subroutine_address = self.reg[register_a]
+         
+        # push the next PC location
+        # get the location of the stack pointer
+        # decrement it by one and store the new PC location
+        self.reg[7] -= 0x1
+        self.ram[self.reg[7]] = self.pc + self.num_operands + 1
+        self.pc = subroutine_address
 
 
     def hlt(self):
@@ -110,7 +118,11 @@ class CPU:
         return
     
     def ret(self):
-        pass
+        self.pc = self.ram[self.reg[7]]
+        address = self.reg[7]
+        new_address = address + 0x1
+        self.reg[7] = new_address
+
 
     def trace(self):
         """
@@ -143,7 +155,7 @@ class CPU:
             opertion_code = instruction & 0b00001111
 
             #HLT
-            if opertion_code == 0b1:
+            if instruction == 0b00000001:
                 self.hlt()
 
             if self.num_operands > 0:
@@ -163,13 +175,14 @@ class CPU:
             elif pc_setters:
                 if self.num_operands > 1:
                     self.pcs(opertion_code, operand_a, operand_b)
-                else:
+                elif self.num_operands == 1:
                     self.pcs(opertion_code, operand_a)
+                else:
+                    self.pcs(opertion_code)
                 continue
 
             else:
                 operation = operations.opcodes[opertion_code]
-
                 if self.num_operands > 1:
                     getattr(self, operation)(operand_a, operand_b)
                 else:

@@ -57,9 +57,23 @@ class CPU:
 
         # else:
         #     raise Exception("Unsupported ALU operation")
+    
+    def pcs(self, op, register_a, register_b=None):
+
+        pc_setter_operation = operations.direct_codes[op]
+
+        if self.num_operands > 1:
+            getattr(self, pc_setter_operation)(register_a, register_b)
+        else:
+            getattr(self, pc_setter_operation)(register_a)
+
 
     def add(self, register_a, register_b):
         self.reg[register_a] += self.reg[register_b]
+
+    def call(self, register_a):
+        stored_address = self.reg[register_a]
+
 
     def hlt(self):
         exit()
@@ -94,6 +108,9 @@ class CPU:
         # store value_to_write at address_to_write
         self.ram[address_to_write] = value_to_write
         return
+    
+    def ret(self):
+        pass
 
     def trace(self):
         """
@@ -137,8 +154,18 @@ class CPU:
             # ALU Mask
             alu = (instruction >> 5) & 0b001
 
+            # Direct Code Mask
+            pc_setters = (instruction >> 4) & 0b0001
+
             if alu:
                 self.alu(opertion_code, operand_a, operand_b)
+
+            elif pc_setters:
+                if self.num_operands > 1:
+                    self.pcs(opertion_code, operand_a, operand_b)
+                else:
+                    self.pcs(opertion_code, operand_a)
+                continue
 
             else:
                 operation = operations.opcodes[opertion_code]

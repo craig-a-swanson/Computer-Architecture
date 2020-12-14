@@ -12,6 +12,7 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
         self.num_operands = 0
+        self.fl = 0b0
 
         self.reg[7] = 0xf4
 
@@ -82,9 +83,28 @@ class CPU:
         self.ram[self.reg[7]] = self.pc + self.num_operands + 1
         self.pc = subroutine_address
 
+    def cmp(self, register_a, register_b):
+        if self.reg[register_a] < self.reg[register_b]:
+            self.fl = 0b100
+        elif self.reg[register_a] > self.reg[register_b]:
+            self.fl = 0b10
+        else:
+            self.fl = 0b1
 
     def hlt(self):
         exit()
+    
+    def jmp(self, register):
+        address = self.reg[register]
+        self.pc = address
+    
+    def jeq(self, register):
+        if self.fl == 0b1:
+            self.jmp(register)
+
+    def jne(self, register):
+        if self.fl != 0b1:
+            self.jmp(register)
 
     def mul(self, register_a, register_b):
         self.reg[register_a] *= self.reg[register_b]
@@ -147,12 +167,15 @@ class CPU:
     def run(self):
         """Run the CPU."""
         running = True
+        test_num = 0
 
         while running:
             # self.trace()
             instruction = self.ram[self.pc]
             self.num_operands = instruction >> 6
             opertion_code = instruction & 0b00001111
+            print(f'{test_num}, opcode: {opertion_code}')
+            test_num += 1
 
             #HLT
             if instruction == 0b00000001:

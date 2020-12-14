@@ -26,8 +26,8 @@ opcodes = {
 
 alu_opcodes = {
     0b0 : 'add',
-    0b1000 : 'and',
-    0b111 : 'cmp',
+    0b1000 : 'bw_and',
+    0b111 : 'alu_cmp',
     0b110 : 'dec',
     0b11 : 'div',
     0b101 : 'inc',

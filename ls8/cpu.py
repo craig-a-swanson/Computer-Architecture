@@ -73,6 +73,9 @@ class CPU:
     def add(self, register_a, register_b):
         self.reg[register_a] += self.reg[register_b]
 
+    def bw_and(self, register_a, register_b):
+        self.reg[register_a] = self.reg[register_a] & self.reg[register_b]
+
     def call(self, register_a):
         subroutine_address = self.reg[register_a]
          
@@ -83,7 +86,7 @@ class CPU:
         self.ram[self.reg[7]] = self.pc + self.num_operands + 1
         self.pc = subroutine_address
 
-    def cmp(self, register_a, register_b):
+    def alu_cmp(self, register_a, register_b):
         if self.reg[register_a] < self.reg[register_b]:
             self.fl = 0b100
         elif self.reg[register_a] > self.reg[register_b]:

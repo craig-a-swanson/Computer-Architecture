@@ -101,10 +101,14 @@ class CPU:
     def jeq(self, register):
         if self.fl == 0b1:
             self.jmp(register)
+        else:
+            self.pc += 2
 
     def jne(self, register):
         if self.fl != 0b1:
             self.jmp(register)
+        else:
+            self.pc += 2
 
     def mul(self, register_a, register_b):
         self.reg[register_a] *= self.reg[register_b]
@@ -174,7 +178,6 @@ class CPU:
             instruction = self.ram[self.pc]
             self.num_operands = instruction >> 6
             opertion_code = instruction & 0b00001111
-            print(f'{test_num}, opcode: {opertion_code}')
             test_num += 1
 
             #HLT
